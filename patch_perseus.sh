@@ -29,7 +29,7 @@ echo "Get Azur Lane apk"
 
     # eg: wget "your download link" -O "your packge name.apk" -q
     #if you want to patch .xapk, change the suffix here to wget "your download link" -O "your packge name.xapk" -q
-7z x com.bilibili.AzurLane.zip
+7z x base.zip
 echo "apk downloaded !"
 
     # if you can only download .xapk file uncomment 2 lines below. (delete the '#')
@@ -44,18 +44,18 @@ if [ ! -d "azurlane" ]; then
 fi
 
 echo "Decompile Azur Lane apk"
-java -jar apktool.jar -q -f d com.bilibili.AzurLane.apk
+java -jar apktool.jar -q -f d base.apk
 
 echo "Copy JMBQ libs"
-cp -r azurlane/. com.bilibili.AzurLane/lib/
+cp -r azurlane/. base/lib/
 
 echo "Patching Azur Lane with JMBQ"
-oncreate=$(grep -n -m 1 'onCreate'  com.bilibili.AzurLane/smali_classes3/com/unity3d/player/UnityPlayerActivity.smali | sed  's/[0-9]*\:\(.*\)/\1/')
-sed -ir "N; s#\($oncreate\n    .locals 2\)#\1\n    const-string v0, \"JMBQ\"\n\n    invoke-static {v0}, Ljava/lang/System;->loadLibrary(Ljava/lang/String;)V\n#" com.bilibili.AzurLane/smali_classes3/com/unity3d/player/UnityPlayerActivity.smali
+oncreate=$(grep -n -m 1 'onCreate'  base/smali_classes3/com/unity3d/player/UnityPlayerActivity.smali | sed  's/[0-9]*\:\(.*\)/\1/')
+sed -ir "N; s#\($oncreate\n    .locals 2\)#\1\n    const-string v0, \"JMBQ\"\n\n    invoke-static {v0}, Ljava/lang/System;->loadLibrary(Ljava/lang/String;)V\n#" base/smali_classes3/com/unity3d/player/UnityPlayerActivity.smali
 
 echo "Build Patched Azur Lane apk"
-java -jar apktool.jar -q -f b com.bilibili.AzurLane -o build/com.bilibili.AzurLane.patched.apk
+java -jar apktool.jar -q -f b base -o build/base.patched.apk
 
 echo "Set Github Release version"
-s=($(./apkeep -a com.bilibili.AzurLane -l .))
+s=($(./apkeep -a base -l .))
 echo "PERSEUS_VERSION=$(echo ${s[-1]})" >> $GITHUB_ENV
